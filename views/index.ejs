@@ -1,0 +1,37 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>員工管理系統</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>員工列表</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>上班時間</th>
+                    <th>下班時間</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% employees.forEach(employee => { %>
+                    <tr>
+                        <td><%= employee.name %></td>
+                        <td><%= employee.clockIn ? employee.clockIn.toLocaleString() : '未打卡' %></td>
+                        <td><%= employee.clockOut ? employee.clockOut.toLocaleString() : '未打卡' %></td>
+                        <td>
+                            <a href="/employees/clockIn/<%= employee._id %>" class="btn btn-primary">上班</a>
+                            <a href="/employees/clockOut/<%= employee._id %>" class="btn btn-secondary">下班</a>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

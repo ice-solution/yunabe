@@ -1,0 +1,95 @@
+<!-- views/reports.ejs -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>報告生成</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- 引入 Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">報告生成</h1>
+
+        <div class="form-group">
+            <label for="fromDate">選擇開始時間</label>
+            <div class='input-group date' id='fromDate'>
+                <input type='text' class="form-control" id="fromDateInput" required />
+                <span class="input-group-addon">
+                    <i class="fas fa-calendar-alt"></i> <!-- 使用 Font Awesome 圖標 -->
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="toDate">選擇結束時間</label>
+            <div class='input-group date' id='toDate'>
+                <input type='text' class="form-control" id="toDateInput" required />
+                <span class="input-group-addon">
+                    <i class="fas fa-calendar-alt"></i> <!-- 使用 Font Awesome 圖標 -->
+                </span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" id="confirmDates">確定</button>
+
+        <div id="reportType" class="mt-4" style="display: none;">
+            <h3>選擇報告類別</h3>
+            <button class="btn btn-info" onclick="generateReport('overall')">整體報告</button>
+            <button class="btn btn-info" onclick="generateReport('individual')">個人報告</button>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            $('#fromDateInput').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true
+            }).on('changeDate', function(e) {
+                // 這裡可以添加其他邏輯，例如自動更新結束日期
+            });
+
+            $('#toDateInput').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true
+            });
+
+            $('#confirmDates').click(function () {
+                const fromDate = $('#fromDateInput').val();
+                const toDate = $('#toDateInput').val();
+                if (fromDate && toDate) {
+                    $('#reportType').show();
+                } else {
+                    alert('請選擇開始和結束時間');
+                }
+            });
+        });
+
+        function generateReport(type) {
+            const fromDate = $('#fromDateInput').val();
+            const toDate = $('#toDateInput').val();
+            const employeeId = ''; // 如果是個人報告，請填入員工 ID
+
+            // 發送請求到後端生成報告
+            $.ajax({
+                url: '/reports/generate',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ fromDate, toDate, type, employeeId }),
+                success: function(response) {
+                    // 下載報告
+                    window.location.href = response.downloadUrl; // 假設後端返回下載鏈接
+                },
+                error: function(err) {
+                    alert('生成報告時出錯：' + err.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

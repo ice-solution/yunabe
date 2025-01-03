@@ -1,0 +1,32 @@
+<!-- views/storeDetails.ejs -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>商店詳細資料</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">商店詳細資料</h1>
+        <h2><%= store.store_name %></h2>
+        <p><strong>地址:</strong> <%= store.address || '無' %></p>
+        
+        <h3>員工列表</h3>
+        <ul>
+            <% employeeHours.forEach(({ employee, totalHours }) => { %>
+                <li>
+                    <%= employee.employee_name %> - 總時數: <%= totalHours.toFixed(2) %> 小時
+                    <form action="/stores/<%= store._id %>/employees" method="POST" class="d-inline">
+                        <input type="hidden" name="employeeId" value="<%= employee._id %>">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ul>
+        
+        <a href="/stores" class="btn btn-secondary">返回商店列表</a>
+    </div>
+</body>
+</html>

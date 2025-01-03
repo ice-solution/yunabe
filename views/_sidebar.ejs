@@ -1,0 +1,40 @@
+<!-- views/_sidebar.ejs -->
+<nav class="col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+    <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+        <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <span class="fs-5 d-none d-sm-inline">Menu</span>
+        </a>
+        <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+            <li class="nav-item">
+                <a href="/stores" class="nav-link align-middle px-0">
+                    <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">店舗</span>
+                </a>
+            </li>
+            <li>
+                <a href="/employees" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi-person"></i> <span class="ms-1 d-none d-sm-inline">員工</span>
+                </a>
+                <ul class="collapse nav flex-column ms-1" id="employeeSubmenu" data-bs-parent="#menu">
+                    <li class="w-100">
+                        <a href="/employees" class="nav-link px-0"> <span class="d-none d-sm-inline">員工列表</span></a>
+                    </li>
+                    <li>
+                        <a href="/employees/add" class="nav-link px-0"> <span class="d-none d-sm-inline">新增員工</span></a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/reports" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi-file-earmark-text"></i> <span class="ms-1 d-none d-sm-inline">報告</span>
+                </a>
+            </li>
+            <li>
+                <a href="/logout" class="nav-link px-0 align-middle">
+                    <i class="fs-4 bi-box-arrow-right"></i> <span class="ms-1 d-none d-sm-inline">登出</span>
+                </a>
+            </li>
+        </ul>
+        <hr>
+       
+    </div>
+</nav>

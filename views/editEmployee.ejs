@@ -1,0 +1,29 @@
+<!-- views/editEmployee.ejs -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>編輯員工</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">編輯員工</h1>
+        <form action="/employees/<%= employee._id %>" method="POST">
+            <div class="form-group">
+                <label for="employee_name">員工姓名</label>
+                <input type="text" class="form-control" id="employee_name" name="employee_name" value="<%= employee.employee_name %>" required>
+            </div>
+            <div class="form-group">
+                <label for="salary_h">每小時工資</label>
+                <input type="number" class="form-control" id="salary_h" name="salary_h" value="<%= employee.salary_h %>" required>
+            </div>
+            <div class="form-group">
+                <label for="OT_h">加班每小時工資</label>
+                <input type="number" class="form-control" id="OT_h" name="OT_h" value="<%= employee.OT_h %>" required>
+            </div>
+            <button type="submit" class="btn btn-primary">更新員工</button>
+        </form>
+    </div>
+</body>
+</html>

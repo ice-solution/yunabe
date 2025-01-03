@@ -1,0 +1,145 @@
+<!-- views/attendance.ejs -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>考勤管理</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .clocked-in {
+            color: green; /* 上班時名字變為綠色 */
+        }
+        .not-clocked-in {
+            color: black; /* 下班後名字變回黑色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">考勤管理</h1>
+
+        <form id="storeForm" class="mb-4">
+            <div class="form-group">
+                <label for="storeSelect">選擇商店</label>
+                <select id="storeSelect" class="form-control" required>
+                    <option value="">請選擇商店</option>
+                    <% stores.forEach(store => { %>
+                        <option value="<%= store._id %>"><%= store.store_name %></option>
+                    <% }) %>
+                </select>
+            </div>
+        </form>
+
+        <div id="employeeList" class="mt-4" style="display: none;">
+            <h3>已添加的員工</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>員工姓名</th>
+                        <th>最近上班時間</th>
+                        <th>最近下班時間</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="employees"></tbody>
+            </table>
+        </div>
+
+        <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('storeSelect').addEventListener('change', function() {
+            const storeId = this.value;
+            if (storeId) {
+                fetch(`/stores/${storeId}/employees`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const employeeList = document.getElementById('employees');
+                        employeeList.innerHTML = ''; // 清空列表
+                        data.forEach(employee => {
+                            const lastAttendance = employee.attendance[employee.attendance.length - 1] || {};
+                            const clockInTime = lastAttendance.clockIn ? 
+                                new Date(lastAttendance.clockIn).toLocaleString() : 
+                                '未上班'; // 獲取最近的上班時間
+                            const clockOutTime = lastAttendance.clockOut ? 
+                                new Date(lastAttendance.clockOut).toLocaleString() : 
+                                '未下班'; // 獲取最近的下班時間
+                            
+                            const row = document.createElement('tr');
+                            // 只有在有上班紀錄但沒有下班紀錄的情況下，名字才變成綠色
+                            const isClockedIn = lastAttendance.clockIn && !lastAttendance.clockOut;
+                            row.innerHTML = `
+                                <td id="employee-${employee._id}" class="${isClockedIn ? 'clocked-in' : 'not-clocked-in'}">${employee.employee_name}</td>
+                                <td class="clock-in-time">${clockInTime}</td> <!-- 顯示最近上班時間 -->
+                                <td class="clock-out-time">${clockOutTime}</td> <!-- 顯示最近下班時間 -->
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="clockIn('${employee._id}', this)">上班</button>
+                                    <button class="btn btn-danger btn-sm" onclick="clockOut('${employee._id}', this)">下班</button>
+                                </td>
+                            `;
+                            employeeList.appendChild(row);
+                        });
+                        document.getElementById('employeeList').style.display = 'block';
+                    });
+            } else {
+                document.getElementById('employeeList').style.display = 'none';
+            }
+        });
+
+        function clockIn(employeeId, button) {
+            fetch(`/attendance/${employeeId}/clockIn`, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('上班時間已記錄');
+                        // 更新名字顏色為綠色
+                        const employeeCell = document.getElementById(`employee-${employeeId}`);
+                        employeeCell.classList.add('clocked-in');
+                        employeeCell.classList.remove('not-clocked-in'); // 確保名字顏色為綠色
+
+                        // 更新上班時間
+                        const clockInTime = new Date().toLocaleString();
+                        const clockInTimeCell = employeeCell.nextElementSibling; // 獲取最近上班時間的單元格
+                        clockInTimeCell.innerText = clockInTime; // 更新上班時間
+
+                        // 將下班時間設置為 "未下班"
+                        const clockOutTimeCell = employeeCell.nextElementSibling.nextElementSibling; // 獲取最近下班時間的單元格
+                        clockOutTimeCell.innerText = '未下班'; // 更新下班時間
+                        
+                        document.getElementById('errorMessage').style.display = 'none'; // 隱藏錯誤提示
+                    } else {
+                        return response.json().then(data => {
+                            document.getElementById('errorMessage').innerText = data.message;
+                            document.getElementById('errorMessage').style.display = 'block'; // 顯示錯誤提示
+                        });
+                    }
+                });
+        }
+
+        function clockOut(employeeId, button) {
+            fetch(`/attendance/${employeeId}/clockOut`, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('下班時間已記錄');
+                        // 更新下班時間
+                        const employeeCell = document.getElementById(`employee-${employeeId}`);
+                        const clockOutTime = new Date().toLocaleString();
+                        const clockOutTimeCell = employeeCell.nextElementSibling.nextElementSibling; // 獲取最近下班時間的單元格
+                        clockOutTimeCell.innerText = clockOutTime; // 更新下班時間
+
+                        // 將名字顏色變回黑色
+                        employeeCell.classList.remove('clocked-in');
+                        employeeCell.classList.add('not-clocked-in');
+
+                        document.getElementById('errorMessage').style.display = 'none'; // 隱藏錯誤提示
+                    } else {
+                        return response.json().then(data => {
+                            document.getElementById('errorMessage').innerText = data.message;
+                            document.getElementById('errorMessage').style.display = 'block'; // 顯示錯誤提示
+                        });
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
