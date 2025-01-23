@@ -3,7 +3,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>考勤管理</title>
+    <title>考勤管理 Attendance</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .clocked-in {
@@ -12,17 +12,22 @@
         .not-clocked-in {
             color: black; /* 下班後名字變回黑色 */
         }
+        #currentTime {
+            font-size: 1.5em; /* 時鐘字體大小 */
+            margin-top: 10px; /* 時鐘與標題的間距 */
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-5">考勤管理</h1>
+        <h1 class="mt-5">考勤管理 Attendance</h1>
+        <div id="currentTime"></div> <!-- 顯示當前時間的區域 -->
 
         <form id="storeForm" class="mb-4">
             <div class="form-group">
-                <label for="storeSelect">選擇商店</label>
+                <label for="storeSelect">選擇商店 Select Store</label>
                 <select id="storeSelect" class="form-control" required>
-                    <option value="">請選擇商店</option>
+                    <option value="">請選擇商店 Please select a store</option>
                     <% stores.forEach(store => { %>
                         <option value="<%= store._id %>"><%= store.store_name %></option>
                     <% }) %>
@@ -31,14 +36,14 @@
         </form>
 
         <div id="employeeList" class="mt-4" style="display: none;">
-            <h3>已添加的員工</h3>
+            <h3>已添加的員工 Employees Added</h3>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>員工姓名</th>
-                        <th>最近上班時間</th>
-                        <th>最近下班時間</th>
-                        <th>操作</th>
+                        <th>員工姓名 Employee Name</th>
+                        <th>最近上班時間 Last Clock In</th>
+                        <th>最近下班時間 Last Clock Out</th>
+                        <th>操作 Actions</th>
                     </tr>
                 </thead>
                 <tbody id="employees"></tbody>
@@ -49,6 +54,18 @@
     </div>
 
     <script>
+        // 更新當前時間的函數
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Hong_Kong' };
+            const formattedTime = now.toLocaleString('zh-HK', options); // 使用香港時區格式化時間
+            document.getElementById('currentTime').innerText = `當前時間 Current Time: ${formattedTime}`;
+        }
+
+        // 每秒更新當前時間
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime(); // 初始調用以顯示時間
+       
         document.getElementById('storeSelect').addEventListener('change', function() {
             const storeId = this.value;
             if (storeId) {
@@ -56,26 +73,26 @@
                     .then(response => response.json())
                     .then(data => {
                         const employeeList = document.getElementById('employees');
-                        employeeList.innerHTML = ''; // 清空列表
+                        employeeList.innerHTML = ''; // 清空列表 Clear list
                         data.forEach(employee => {
                             const lastAttendance = employee.attendance[employee.attendance.length - 1] || {};
                             const clockInTime = lastAttendance.clockIn ? 
                                 new Date(lastAttendance.clockIn).toLocaleString() : 
-                                '未上班'; // 獲取最近的上班時間
+                                '未上班 Not Clocked In'; // 獲取最近的上班時間 Get last clock in time
                             const clockOutTime = lastAttendance.clockOut ? 
                                 new Date(lastAttendance.clockOut).toLocaleString() : 
-                                '未下班'; // 獲取最近的下班時間
+                                '未下班 Not Clocked Out'; // 獲取最近的下班時間 Get last clock out time
                             
                             const row = document.createElement('tr');
                             // 只有在有上班紀錄但沒有下班紀錄的情況下，名字才變成綠色
                             const isClockedIn = lastAttendance.clockIn && !lastAttendance.clockOut;
                             row.innerHTML = `
                                 <td id="employee-${employee._id}" class="${isClockedIn ? 'clocked-in' : 'not-clocked-in'}">${employee.employee_name}</td>
-                                <td class="clock-in-time">${clockInTime}</td> <!-- 顯示最近上班時間 -->
-                                <td class="clock-out-time">${clockOutTime}</td> <!-- 顯示最近下班時間 -->
+                                <td class="clock-in-time">${clockInTime}</td> <!-- 顯示最近上班時間 Show last clock in time -->
+                                <td class="clock-out-time">${clockOutTime}</td> <!-- 顯示最近下班時間 Show last clock out time -->
                                 <td>
-                                    <button class="btn btn-success btn-sm" onclick="clockIn('${employee._id}', this)">上班</button>
-                                    <button class="btn btn-danger btn-sm" onclick="clockOut('${employee._id}', this)">下班</button>
+                                    <button class="btn btn-success btn-sm" onclick="clockIn('${employee._id}', this)">上班 Clock In</button>
+                                    <button class="btn btn-danger btn-sm" onclick="clockOut('${employee._id}', this)">下班 Clock Out</button>
                                 </td>
                             `;
                             employeeList.appendChild(row);
@@ -91,7 +108,7 @@
             fetch(`/attendance/${employeeId}/clockIn`, { method: 'POST' })
                 .then(response => {
                     if (response.ok) {
-                        alert('上班時間已記錄');
+                        alert('上班時間已記錄 Clock in time recorded');
                         // 更新名字顏色為綠色
                         const employeeCell = document.getElementById(`employee-${employeeId}`);
                         employeeCell.classList.add('clocked-in');
@@ -104,7 +121,7 @@
 
                         // 將下班時間設置為 "未下班"
                         const clockOutTimeCell = employeeCell.nextElementSibling.nextElementSibling; // 獲取最近下班時間的單元格
-                        clockOutTimeCell.innerText = '未下班'; // 更新下班時間
+                        clockOutTimeCell.innerText = '未下班 Not Clocked Out'; // 更新下班時間
                         
                         document.getElementById('errorMessage').style.display = 'none'; // 隱藏錯誤提示
                     } else {
@@ -120,7 +137,7 @@
             fetch(`/attendance/${employeeId}/clockOut`, { method: 'POST' })
                 .then(response => {
                     if (response.ok) {
-                        alert('下班時間已記錄');
+                        alert('下班時間已記錄 Clock out time recorded');
                         // 更新下班時間
                         const employeeCell = document.getElementById(`employee-${employeeId}`);
                         const clockOutTime = new Date().toLocaleString();
