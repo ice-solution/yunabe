@@ -11,37 +11,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-5">報告生成</h1>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <%- include ('_sidebar.ejs') %> <!-- 引入 sidebar 組件 -->
+            <div class="col py-3">
+                <h1 class="mt-5">報告生成</h1>
+                <div class="form-group">
+                    <label for="fromDate">選擇開始時間</label>
+                    <div class='input-group date' id='fromDate'>
+                        <input type='text' class="form-control" id="fromDateInput" required />
+                        <span class="input-group-addon">
+                            <i class="fas fa-calendar-alt"></i> <!-- 使用 Font Awesome 圖標 -->
+                        </span>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="fromDate">選擇開始時間</label>
-            <div class='input-group date' id='fromDate'>
-                <input type='text' class="form-control" id="fromDateInput" required />
-                <span class="input-group-addon">
-                    <i class="fas fa-calendar-alt"></i> <!-- 使用 Font Awesome 圖標 -->
-                </span>
+                <div class="form-group">
+                    <label for="toDate">選擇結束時間</label>
+                    <div class='input-group date' id='toDate'>
+                        <input type='text' class="form-control" id="toDateInput" required />
+                        <span class="input-group-addon">
+                            <i class="fas fa-calendar-alt"></i> <!-- 使用 Font Awesome 圖標 -->
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="employeeSelect">選擇員工</label>
+                    <select class="form-control" id="employeeSelect" required>
+                        <option value="">請選擇員工</option>
+                        <!-- 假設這裡會動態生成員工選項 -->
+                        <% employees.forEach(function(employee) { %>
+                            <option value="<%= employee._id %>"><%= employee.employee_name %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="confirmDates">確定</button>
+
+                <div id="reportType" class="mt-4" style="display: none;">
+                    <h3>選擇報告類別</h3>
+                    <button class="btn btn-info" onclick="generateReport('overall')">整體報告</button>
+                    <button class="btn btn-info" onclick="generateReport('individual')">個人報告</button>
+                </div>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label for="toDate">選擇結束時間</label>
-            <div class='input-group date' id='toDate'>
-                <input type='text' class="form-control" id="toDateInput" required />
-                <span class="input-group-addon">
-                    <i class="fas fa-calendar-alt"></i> <!-- 使用 Font Awesome 圖標 -->
-                </span>
-            </div>
-        </div>
-
-        <button class="btn btn-primary" id="confirmDates">確定</button>
-
-        <div id="reportType" class="mt-4" style="display: none;">
-            <h3>選擇報告類別</h3>
-            <button class="btn btn-info" onclick="generateReport('overall')">整體報告</button>
-            <button class="btn btn-info" onclick="generateReport('individual')">個人報告</button>
         </div>
     </div>
+    
 
     <script>
         $(function () {
@@ -73,7 +87,8 @@
         function generateReport(type) {
             const fromDate = $('#fromDateInput').val();
             const toDate = $('#toDateInput').val();
-            const employeeId = ''; // 如果是個人報告，請填入員工 ID
+            
+            const employeeId = $('#employeeSelect').val(); // 如果是個人報告，請填入員工 ID
 
             // 發送請求到後端生成報告
             $.ajax({

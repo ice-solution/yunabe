@@ -10,7 +10,7 @@ exports.getAllEmployees = async (req, res) => {
 // 創建新員工
 exports.createEmployee = async (req, res) => {
     const { employee_name, salary_h, OT_h } = req.body;
-    const newEmployee = new Employee({ employee_name, salary_h, OT_h });
+    const newEmployee = new Employee({ employee_name, salary_h, OT_h, OT_time });
     await newEmployee.save();
     res.redirect('/employees'); // 創建成功後重定向到員工頁面
 };
@@ -24,8 +24,8 @@ exports.editEmployeePage = async (req, res) => {
 
 // 更新員工
 exports.updateEmployee = async (req, res) => {
-    const { employee_name, salary_h, OT_h } = req.body;
-    const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, { employee_name, salary_h, OT_h }, { new: true });
+    const { employee_name, salary_h, OT_h, OT_time } = req.body;
+    const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, { employee_name, salary_h, OT_h,OT_time }, { new: true });
     if (!updatedEmployee) return res.status(404).send('員工未找到');
     res.redirect('/employees'); // 更新成功後重定向到員工頁面
 };
