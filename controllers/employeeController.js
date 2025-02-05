@@ -9,7 +9,7 @@ exports.getAllEmployees = async (req, res) => {
 
 // 創建新員工
 exports.createEmployee = async (req, res) => {
-    const { employee_name, salary_h, OT_h } = req.body;
+    const { employee_name, salary_h, OT_h, OT_time } = req.body;
     const newEmployee = new Employee({ employee_name, salary_h, OT_h, OT_time });
     await newEmployee.save();
     res.redirect('/employees'); // 創建成功後重定向到員工頁面
